@@ -144,7 +144,6 @@ int main(int argc, char *argv[])
                 name_of_joystick, num_of_axis, num_of_buttons);
     }
 
-
     fcntl(joy_fd, F_SETFL, O_RDONLY);
     flush_fd(joy_fd);
 
@@ -160,18 +159,10 @@ int main(int argc, char *argv[])
                 break;
             case JS_EVENT_BUTTON:
                 button[js.number] = js.value;
-                if (js.value == BTN_RELEASE) {
-                    for (i = 0; i < sizeof(buttons)/sizeof(buttons[0]); i++) {
-                        if (buttons[i].key != js.number+1) continue;
-                        if (buttons[i].func[BTN_RELEASE])
-                            buttons[i].func[BTN_RELEASE](&buttons[i].arg);
-                    }
-                    break;
-                }
                 for (i = 0; i < sizeof(buttons)/sizeof(buttons[0]); i++) {
                     if (buttons[i].key != js.number+1) continue;
-                    if (buttons[i].func[BTN_PRESS] && buttons[i].key)
-                        buttons[i].func[BTN_PRESS](&buttons[i].arg);
+                    if (buttons[i].func[js.value] && buttons[i].key)
+                        buttons[i].func[js.value](&buttons[i].arg);
                 }
                 break;
         }
