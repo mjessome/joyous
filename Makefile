@@ -3,7 +3,6 @@ LIBS=-lX11 -lXtst
 CFLAGS=-g -std=c99 -Wall
 LDFLAGS=-g ${LIBS}
 
-
 SRC=joystick.c
 OBJ=joystick.o
 

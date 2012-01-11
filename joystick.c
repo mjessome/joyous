@@ -13,6 +13,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <linux/joystick.h>
 
@@ -55,7 +56,7 @@ void quit(const Arg *arg)
 }
 void exec_cmd(const Arg *arg)
 {
-    if(fork() == 0) {
+    if (fork() == 0) {
         fclose(stdout);
         fclose(stderr);
         const char *cmd[] = { SHELL, "-c", arg->s, NULL };
@@ -71,8 +72,8 @@ void send_key_release(const Arg *arg)
     unsigned int modcode = (arg->k.mod)? XKeysymToKeycode(DISPLAY, (KeySym)arg->k.mod) : 0;
 
     XTestGrabControl(DISPLAY, True);
-    if(keycode) XTestFakeKeyEvent(DISPLAY, keycode, False, CurrentTime);
-    if(modcode) XTestFakeKeyEvent(DISPLAY, modcode, False, 0);
+    if (keycode) XTestFakeKeyEvent(DISPLAY, keycode, False, CurrentTime);
+    if (modcode) XTestFakeKeyEvent(DISPLAY, modcode, False, 0);
     XSync(DISPLAY, False);
     XTestGrabControl(DISPLAY, False);
 }
@@ -83,8 +84,8 @@ void send_key_press(const Arg *arg)
     unsigned int modcode = (arg->k.mod)? XKeysymToKeycode(DISPLAY, (KeySym)arg->k.mod) : 0;
 
     XTestGrabControl(DISPLAY, True);
-    if(modcode) XTestFakeKeyEvent(DISPLAY, modcode, True, 0);
-    if(keycode) XTestFakeKeyEvent(DISPLAY, keycode, True, CurrentTime);
+    if (modcode) XTestFakeKeyEvent(DISPLAY, modcode, True, 0);
+    if (keycode) XTestFakeKeyEvent(DISPLAY, keycode, True, CurrentTime);
     XSync(DISPLAY, False);
     XTestGrabControl(DISPLAY, False);
 }
@@ -103,35 +104,42 @@ void flush_fd(int fd)
     printf("Flushing joystick input...\n");
     FD_ZERO(&fds);
     FD_SET(fd, &fds);
-    while(select(sizeof(fds)*8, &fds, NULL, NULL, &t) > 0) {
-        if (read(fd, &js, sizeof(struct js_event)) < 0 ) break;
+    while (select(sizeof(fds)*8, &fds, NULL, NULL, &t) > 0) {
+        if (read(fd, &js, sizeof(struct js_event)) < 0) break;
         FD_ZERO(&fds);
         FD_SET(fd, &fds);
     }
     printf("Ready.\n");
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     int i;
+    int debug = 0;
     int joy_fd, x;
     int *axis=NULL;
     int num_of_axis = 0, num_of_buttons=0;
     char *button=NULL, name_of_joystick[80];
     struct js_event js;
 
+    for (i = 1; i < argc; i++) {
+        if (!strcmp(argv[i], "-d")) {
+            debug = 1;
+        }
+    }
+
     DISPLAY = XOpenDisplay(NULL);
-    if(DISPLAY == NULL) {
+    if (DISPLAY == NULL) {
         printf("Error: Cannot connect to X server.");
         exit(1);
     }
-    if(!XQueryExtension(DISPLAY, "XTEST", &i, &i, &i)) {
+    if (!XQueryExtension(DISPLAY, "XTEST", &i, &i, &i)) {
         printf("Error: Extension \"XTest\" not available on display.\n");
         exit(1);
     }
 
-    if((joy_fd = open( JOY_DEV , O_RDONLY)) == -1) {
-        printf( "Couldn't open joystick\n");
+    if ((joy_fd = open(JOY_DEV , O_RDONLY)) == -1) {
+        printf("Couldn't open joystick\n");
         exit(1);
     }
 
@@ -143,14 +151,16 @@ int main()
     axis = (int *)calloc(num_of_axis, sizeof(int));
     button = (char *)calloc(num_of_buttons, sizeof(char));
 
-    printf("Joystick detected: %s\n\t%d axis\n\t%d buttons\n\n"
-            , name_of_joystick, num_of_axis, num_of_buttons );
+    if (debug) {
+        printf("Joystick detected: %s\n\t%d axis\n\t%d buttons\n\n",
+                name_of_joystick, num_of_axis, num_of_buttons);
+    }
 
 
     fcntl(joy_fd, F_SETFL, O_RDONLY);
     flush_fd(joy_fd);
 
-    while(1) {
+    while (1) {
         /* read the joystick state */
         read(joy_fd, &js, sizeof(struct js_event));
 
@@ -163,7 +173,7 @@ int main()
             case JS_EVENT_BUTTON:
                 button[js.number] = js.value;
                 if (js.value == BTN_RELEASE) {
-                    for(i = 0; i < sizeof(buttons)/sizeof(buttons[0]); i++) {
+                    for (i = 0; i < sizeof(buttons)/sizeof(buttons[0]); i++) {
                         if (buttons[i].key != js.number+1) continue;
                         if (buttons[i].func[BTN_RELEASE])
                             buttons[i].func[BTN_RELEASE](&buttons[i].arg);
@@ -177,19 +187,20 @@ int main()
                 }
                 break;
         }
-        /* print the results */
-        printf( "X: %6d  Y: %6d  ", axis[0], axis[1] );
-        if( num_of_axis > 2 )
-            printf("Z: %6d  ", axis[2] );
-        if( num_of_axis > 3 )
-            printf("R: %6d  ", axis[3] );
-        for( x=0 ; x<num_of_buttons ; ++x )
-            printf("B%d: %d  ", x, button[x] );
-
-        printf("  \r");
-        fflush(stdout);
+        if (debug) {
+            /* print the results */
+            printf("X: %6d  Y: %6d  ", axis[0], axis[1]);
+            if (num_of_axis > 2)
+                printf("Z: %6d  ", axis[2]);
+            if (num_of_axis > 3)
+                printf("R: %6d  ", axis[3]);
+            for (x=0 ; x<num_of_buttons ; ++x)
+                printf("B%d: %d  ", x, button[x]);
+            printf("  \r");
+            fflush(stdout);
+        }
     }
 
-    close( joy_fd );
+    close(joy_fd);
     return 0;
 }
