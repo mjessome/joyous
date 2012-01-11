@@ -1,14 +1,3 @@
-/* http://archives.seul.org/linuxgames/Aug-1999/msg00107.html */
-/*
- * References:
- */
-/* this is the linux 2.2.x way of handling joysticks. It allows an arbitrary
- * number of axis and buttons. It's event driven, and has full signed int
- * ranges of the axis (-32768 to 32767). It also lets you pull the joysticks
- * name. The only place this works of that I know of is in the linux 1.x 
- * joystick driver, which is included in the linux 2.2.x kernels
- */
-
 #include <stdio.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -142,7 +131,6 @@ int main(int argc, char *argv[])
         printf("Couldn't open joystick\n");
         exit(1);
     }
-
 
     ioctl(joy_fd, JSIOCGAXES, &num_of_axis);
     ioctl(joy_fd, JSIOCGBUTTONS, &num_of_buttons);
