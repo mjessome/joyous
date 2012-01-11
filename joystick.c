@@ -89,21 +89,7 @@ void send_key_press(const Arg *arg)
     XTestGrabControl(DISPLAY, False);
 }
 
-#define KEYPRESS        {send_key_release, send_key_press}
-#define RELEASE(fn)     {fn, NULL}
-#define PRESS(fn)       {NULL, fn}
-static Button buttons[] = {
-    /* button       key up,down             argument */
-    { 1,            PRESS(print),           { .s = "Button 1 pressed!" } },
-    { 2,            RELEASE(quit),          { .i = 1 } },
-    { 3,            RELEASE(exec_cmd),      { .s = "xterm" } },
-    { 4,            KEYPRESS,               { .k = { XK_P, XK_Alt_L } } },
-    { 5,            {print, print},         { .s = "Button 5!" } },
-    { 6,            KEYPRESS,               { .k = { XK_A, 0 } } },
-    { 7,            KEYPRESS,               { .k = { XK_Shift_L, 0 } } },
-    { 8,            RELEASE(exec_cmd),      { .s = "mpc play" } },
-    { 9,            RELEASE(exec_cmd),      { .s = "mpc stop" } },
-};
+#include "config.h"
 
 void flush_fd(int fd)
 {

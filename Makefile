@@ -10,6 +10,8 @@ OBJ=joystick.o
 .c.o:
 	@${CC} -c ${CFLAGS} $<
 
+${OBJ}: config.h
+
 all: joystick
 
 joystick: ${OBJ}
