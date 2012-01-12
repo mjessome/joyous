@@ -90,7 +90,6 @@ void flush_fd(int fd)
     t.tv_sec = 1;
     t.tv_usec = 0;
 
-    printf("Flushing joystick input...\n");
     FD_ZERO(&fds);
     FD_SET(fd, &fds);
     while (select(sizeof(fds)*8, &fds, NULL, NULL, &t) > 0) {
@@ -98,7 +97,6 @@ void flush_fd(int fd)
         FD_ZERO(&fds);
         FD_SET(fd, &fds);
     }
-    printf("Ready.\n");
 }
 
 int main(int argc, char *argv[])
@@ -145,7 +143,9 @@ int main(int argc, char *argv[])
     }
 
     fcntl(joy_fd, F_SETFL, O_RDONLY);
+    if (debug) printf("Flushing joystick input...\n");
     flush_fd(joy_fd);
+    if (debug) printf("Ready.\n");
 
     while (1) {
         /* read the joystick state */
