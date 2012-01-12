@@ -34,6 +34,29 @@ typedef struct
     const Arg arg;
 } Button;
 
+unsigned int char_to_keysym(const char *c)
+{
+    unsigned int key;
+    char str[2];
+    str[0] = *c;
+    str[1] = '\0';
+
+    /* handle special characters */
+    switch (*c) {
+        case '\n':
+            key = XK_Return;
+            break;
+        case '\t':
+            key = XK_Tab;
+            break;
+        default:
+            str[0] = *c;
+            key = XStringToKeysym(str);
+            break;
+    }
+    return key;
+}
+
 /* Action Functions */
 void print(const Arg *arg)
 {
@@ -86,22 +109,10 @@ void send_string_key_press(const Arg *arg)
     Key k;
     Arg a;
 
+    k.mod = 0;
     str[1] = '\0';
     for (c = 0; c < strlen(arg->s); c++) {
-        /* handle special characters */
-        switch (arg->s[c]) {
-            case '\n':
-                k.key = XK_Return;
-                break;
-            case '\t':
-                k.key = XK_Tab;
-                break;
-            default:
-                str[0] = arg->s[c];
-                k.key = XStringToKeysym(str);
-                break;
-        }
-        k.mod = 0;
+        k.key = char_to_keysym(&arg->s[c]);
         a.k = k;
         send_key_press(&a);
         send_key_release(&a);
