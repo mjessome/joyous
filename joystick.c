@@ -88,8 +88,19 @@ void send_string_key_press(const Arg *arg)
 
     str[1] = '\0';
     for (c = 0; c < strlen(arg->s); c++) {
-        str[0] = arg->s[c];
-        k.key = XStringToKeysym(str);
+        /* handle special characters */
+        switch (arg->s[c]) {
+            case '\n':
+                k.key = XK_Return;
+                break;
+            case '\t':
+                k.key = XK_Tab;
+                break;
+            default:
+                str[0] = arg->s[c];
+                k.key = XStringToKeysym(str);
+                break;
+        }
         k.mod = 0;
         a.k = k;
         send_key_press(&a);
