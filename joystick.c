@@ -38,6 +38,7 @@ typedef struct
 void print(const Arg *arg)
 {
     printf("%s", arg->s);
+    fflush(stdout);
 }
 void quit(const Arg *arg)
 {
