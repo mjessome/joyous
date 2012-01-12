@@ -12,5 +12,6 @@ static Button buttons[] = {
     { 7,            KEYPRESS,               { .k = { XK_Shift_L, 0 } } },
     { 8,            RELEASE(exec_cmd),      { .s = "mpc play" } },
     { 9,            RELEASE(exec_cmd),      { .s = "mpc stop" } },
+    { 10,           PRESS(send_string_key_press), { .s = "exit" } },
 };
 

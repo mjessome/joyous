@@ -79,6 +79,23 @@ void send_key_press(const Arg *arg)
     XSync(DISPLAY, False);
     XTestGrabControl(DISPLAY, False);
 }
+void send_string_key_press(const Arg *arg)
+{
+    int c;
+    char *str = (char *)calloc(2, sizeof(char));
+    Key k;
+    Arg a;
+
+    str[1] = '\0';
+    for (c = 0; c < strlen(arg->s); c++) {
+        str[0] = arg->s[c];
+        k.key = XStringToKeysym(str);
+        k.mod = 0;
+        a.k = k;
+        send_key_press(&a);
+        send_key_release(&a);
+    }
+}
 
 #include "config.h"
 
