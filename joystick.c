@@ -21,20 +21,101 @@ typedef struct {
     unsigned int key;
     unsigned int mod;
 } Key;
+
 typedef union {
     char *s;
     int i;
     Key k;
 } Arg;
 
-typedef struct
-{
+typedef struct {
     unsigned int key;
     void (*func[2])(const Arg *);
     const Arg arg;
 } Button;
 
-Key char_to_key(const char *c)
+void print(const Arg *arg);
+void quit(const Arg *arg);
+void exec_cmd(const Arg *arg);
+void send_key_release(const Arg *arg);
+void send_key_press(const Arg *arg);
+void send_string(const Arg *arg);
+
+#include "config.h"
+
+/* Action Functions */
+void
+print(const Arg *arg)
+{
+    printf("%s", arg->s);
+    fflush(stdout);
+}
+void
+quit(const Arg *arg)
+{
+    exit(arg->i);
+}
+void
+exec_cmd(const Arg *arg)
+{
+    if (fork() == 0) {
+        fclose(stdout);
+        fclose(stderr);
+        const char *cmd[] = { SHELL, "-c", arg->s, NULL };
+        setsid();
+        execvp(((char **)cmd)[0], (char **)cmd);
+        exit(0);
+    }
+}
+void
+send_key_release(const Arg *arg)
+{
+    if (DISPLAY == NULL) return; /* Error */
+    unsigned int keycode =
+        (arg->k.key) ? XKeysymToKeycode(DISPLAY, (KeySym)arg->k.key) : 0;
+    unsigned int modcode =
+        (arg->k.mod) ? XKeysymToKeycode(DISPLAY, (KeySym)arg->k.mod) : 0;
+
+    XTestGrabControl(DISPLAY, True);
+    if (keycode) XTestFakeKeyEvent(DISPLAY, keycode, False, CurrentTime);
+    if (modcode) XTestFakeKeyEvent(DISPLAY, modcode, False, 0);
+    XSync(DISPLAY, False);
+    XTestGrabControl(DISPLAY, False);
+}
+void
+send_key_press(const Arg *arg)
+{
+    if (DISPLAY == NULL) return; /* Error */
+    unsigned int keycode = XKeysymToKeycode(DISPLAY, (KeySym)arg->k.key);
+    unsigned int modcode =
+        (arg->k.mod) ? XKeysymToKeycode(DISPLAY, (KeySym)arg->k.mod) : 0;
+
+    XTestGrabControl(DISPLAY, True);
+    if (modcode) XTestFakeKeyEvent(DISPLAY, modcode, True, 0);
+    if (keycode) XTestFakeKeyEvent(DISPLAY, keycode, True, CurrentTime);
+    XSync(DISPLAY, False);
+    XTestGrabControl(DISPLAY, False);
+}
+void
+send_string(const Arg *arg)
+{
+    int c;
+    char *str = (char *)calloc(2, sizeof(char));
+    Key k;
+    Arg a;
+
+    str[1] = '\0';
+    for (c = 0; c < strlen(arg->s); c++) {
+        k = char_to_key(&arg->s[c]);
+        a.k = k;
+        send_key_press(&a);
+        send_key_release(&a);
+    }
+    free(str);
+}
+
+static Key
+char_to_key(const char *c)
 {
     Key k;
     char str[2];
@@ -62,71 +143,8 @@ Key char_to_key(const char *c)
     return k;
 }
 
-/* Action Functions */
-void print(const Arg *arg)
-{
-    printf("%s", arg->s);
-    fflush(stdout);
-}
-void quit(const Arg *arg)
-{
-    exit(arg->i);
-}
-void exec_cmd(const Arg *arg)
-{
-    if (fork() == 0) {
-        fclose(stdout);
-        fclose(stderr);
-        const char *cmd[] = { SHELL, "-c", arg->s, NULL };
-        setsid();
-        execvp(((char **)cmd)[0], (char **)cmd);
-        exit(0);
-    }
-}
-void send_key_release(const Arg *arg)
-{
-    if (DISPLAY == NULL) return; /* Error */
-    unsigned int keycode = (arg->k.key)? XKeysymToKeycode(DISPLAY, (KeySym)arg->k.key) : 0;
-    unsigned int modcode = (arg->k.mod)? XKeysymToKeycode(DISPLAY, (KeySym)arg->k.mod) : 0;
-
-    XTestGrabControl(DISPLAY, True);
-    if (keycode) XTestFakeKeyEvent(DISPLAY, keycode, False, CurrentTime);
-    if (modcode) XTestFakeKeyEvent(DISPLAY, modcode, False, 0);
-    XSync(DISPLAY, False);
-    XTestGrabControl(DISPLAY, False);
-}
-void send_key_press(const Arg *arg)
-{
-    if (DISPLAY == NULL) return; /* Error */
-    unsigned int keycode = XKeysymToKeycode(DISPLAY, (KeySym)arg->k.key);
-    unsigned int modcode = (arg->k.mod)? XKeysymToKeycode(DISPLAY, (KeySym)arg->k.mod) : 0;
-
-    XTestGrabControl(DISPLAY, True);
-    if (modcode) XTestFakeKeyEvent(DISPLAY, modcode, True, 0);
-    if (keycode) XTestFakeKeyEvent(DISPLAY, keycode, True, CurrentTime);
-    XSync(DISPLAY, False);
-    XTestGrabControl(DISPLAY, False);
-}
-void send_string_key_press(const Arg *arg)
-{
-    int c;
-    char *str = (char *)calloc(2, sizeof(char));
-    Key k;
-    Arg a;
-
-    str[1] = '\0';
-    for (c = 0; c < strlen(arg->s); c++) {
-        k = char_to_key(&arg->s[c]);
-        a.k = k;
-        send_key_press(&a);
-        send_key_release(&a);
-    }
-    free(str);
-}
-
-#include "config.h"
-
-void flush_fd(int fd)
+static void
+flush_fd(int fd)
 {
     fd_set fds;
     struct timeval t;
@@ -144,7 +162,8 @@ void flush_fd(int fd)
     }
 }
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
     int i;
     int debug = 0;
@@ -170,7 +189,8 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    if ((joy_fd = open(JOY_DEV , O_RDONLY)) == -1) {
+    joy_fd = open(JOY_DEV, O_RDONLY);
+    if (joy_fd == -1) {
         printf("Couldn't open joystick\n");
         exit(1);
     }
