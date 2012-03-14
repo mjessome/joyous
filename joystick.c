@@ -168,9 +168,11 @@ main(int argc, char *argv[])
     int i;
     int debug = 0;
     int joy_fd, x;
-    int *axis=NULL;
-    int num_of_axis = 0, num_of_buttons=0;
-    char *button=NULL, name_of_joystick[80];
+    int num_of_axis = 0;
+    int num_of_buttons = 0;
+    int *axis = NULL;
+    char *button=NULL;
+    char name_of_joystick[80];
     struct js_event js;
 
     for (i = 1; i < argc; i++) {
