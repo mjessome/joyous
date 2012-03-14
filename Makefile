@@ -1,6 +1,6 @@
 CC=clang
 LIBS=-lX11 -lXtst
-CFLAGS=-g -std=c99 -Wall
+CFLAGS=-g -std=c99 -Wall -O3
 LDFLAGS=-g ${LIBS}
 
 SRC=joystick.c
