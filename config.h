@@ -1,3 +1,6 @@
+#define JOY_DEV         "/dev/input/js0"
+#define SHELL           "/bin/sh"
+
 #define KEYPRESS        {send_key_release, send_key_press}
 #define RELEASE(fn)     {fn, NULL}
 #define PRESS(fn)       {NULL, fn}

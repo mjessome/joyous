@@ -10,8 +10,6 @@
 #include <X11/keysym.h>
 #include <X11/extensions/XTest.h>
 
-#define JOY_DEV  "/dev/input/js0"
-#define SHELL    "/bin/sh"
 #define BTN_PRESS   0
 #define BTN_RELEASE 1
 
@@ -226,7 +224,7 @@ main(int argc, char *argv[])
                 break;
             case JS_EVENT_BUTTON:
                 button[js.number] = js.value;
-                for (i = 0; i < sizeof(buttons)/sizeof(buttons[0]); i++) {
+                for (i = 0; i < sizeof(buttons)/sizeof(Button); i++) {
                     if (buttons[i].key != js.number+1) continue;
                     if (buttons[i].func[js.value] && buttons[i].key)
                         buttons[i].func[js.value](&buttons[i].arg);
