@@ -45,6 +45,7 @@ static Key char_to_key(const char *c);
 static void flush_fd(int fd);
 static void print_status_info(int *axis, int n_axis,
                               char *button, int n_buttons);
+static void usage();
 
 /* Action Functions */
 void
@@ -181,6 +182,17 @@ print_status_info(int *axis, int n_axis, char *button, int n_buttons)
     fflush(stdout);
 }
 
+static void
+usage()
+{
+    printf("Usage: joyous [options]\n");
+    printf("Options:\n\n  Optional\n");
+    printf("    -d,--debug\tPrint debug information to console.\n");
+    printf("    -i,--info\tRun in info mode; Won't call any functions, but ");
+    printf("    shows joystick information and information on keypresses.\n");
+    printf("    -h, --help\tDisplay this help message\n");
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -202,6 +214,10 @@ main(int argc, char *argv[])
         else if (!strcmp(argv[i], "-i") || !strcmp(argv[i], "--info")) {
             info_mode = 1;
             debug = 1;
+        }
+        else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
+            usage();
+            exit(0);
         }
     }
 
