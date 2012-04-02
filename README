@@ -4,8 +4,8 @@ Joyous
 About
 -----
 Joyous is a joystick mapper which allows users to map joystick buttons to
-X events. It currently supports sending keypresses/releases, full string
-keypresses, and executing commands.
+X events. It currently supports sending key presses/releases, full string key
+presses, and executing commands.
 
 Configuration
 -------------
@@ -14,6 +14,11 @@ bundled with a sample config.h. Be sure that JOY_DEV is defined as the device
 path of your joystick.
 
 See customization instructions and examples in config.h.
+
+Usage
+-----
+To use joyous, simply launch the joyous binary. Any key presses will be sent to
+the active X window.
 
 Installation
 ------------
@@ -27,5 +32,14 @@ Requirements
     * Linux 2.2 or newer
     * X11
     * XTest must be enabled if you want to send keystrokes
-    * a joystick
+    * A joystick
+
+Notes
+-----
+    * Applications are able to disable or not recognize "XTest" events. In the
+      case that an application does so, it will not be possible to send key
+      presses to it.
+    * Based on an outline from br0ke on the Linux Games mailing list.
+      The post can be found at:
+        http://archives.seul.org/linuxgames/Aug-1999/msg00107.html
 
