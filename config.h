@@ -1,6 +1,14 @@
 #define JOY_DEV         "/dev/input/js0"
 #define SHELL           "/bin/sh"
 
+/*
+ * KEYPRESS:     Used to send a press/release of a keyboard key. This should be
+ *                 coupled with a key argument.
+ * RELEASE(fn):  Call function on release of button.
+ * PRESS(fn):    Call function on press of button.
+ *
+ * Note: Multiple actions can be specified for any button.
+ */
 #define KEYPRESS        {send_key_release, send_key_press}
 #define RELEASE(fn)     {fn, NULL}
 #define PRESS(fn)       {NULL, fn}

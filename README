@@ -1,0 +1,31 @@
+Joyous
+======
+
+About
+-----
+Joyous is a joystick mapper which allows users to map joystick buttons to
+X events. It currently supports sending keypresses/releases, full string
+keypresses, and executing commands.
+
+Configuration
+-------------
+Currently joyous is only configurable through editing config.h. It comes
+bundled with a sample config.h. Be sure that JOY_DEV is defined as the device
+path of your joystick.
+
+See customization instructions and examples in config.h.
+
+Installation
+------------
+By default installs to /usr/local/bin
+    1. Edit config.h to your liking.
+    2. run 'make'
+    3. run 'make install' (may need to do this as root)
+
+Requirements
+------------
+    * Linux 2.2 or newer
+    * X11
+    * XTest must be enabled if you want to send keystrokes
+    * a joystick
+
