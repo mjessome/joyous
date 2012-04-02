@@ -41,6 +41,8 @@ void send_string(const Arg *arg);
 
 #include "config.h"
 
+static Key char_to_key(const char *c);
+
 /* Action Functions */
 void
 print(const Arg *arg)

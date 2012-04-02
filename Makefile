@@ -3,12 +3,12 @@ LIBS=-lX11 -lXtst
 CFLAGS=-g -std=c99 -Wall -O3
 LDFLAGS=-g ${LIBS}
 
-SRC=joystick.c
-OBJ=joystick.o
+SRC=joyous.c
+OBJ=joyous.o
 
 PREFIX=/usr/local
 
-all: joystick
+all: joyous
 
 .c.o:
 	@${CC} -c ${CFLAGS} $<
@@ -19,11 +19,11 @@ joystick: ${OBJ}
 	@${CC} -o $@ ${OBJ} ${LDFLAGS}
 
 install: all
-	@echo Installing joystick to ${PREFIX}/bin
+	@echo Installing joyous to ${PREFIX}/bin
 	@mkdir -p ${PREFIX}/bin
-	@cp -f joystick ${PREFIX}/bin/
-	@chmod 755 ${PREFIX}/bin/joystick
+	@cp -f joyous ${PREFIX}/bin/
+	@chmod 755 ${PREFIX}/bin/joyous
 
 clean:
-	@rm -f joystick ${OBJ}
+	@rm -f joyous ${OBJ}
 
