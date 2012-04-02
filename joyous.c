@@ -42,6 +42,9 @@ void send_string(const Arg *arg);
 #include "config.h"
 
 static Key char_to_key(const char *c);
+static void flush_fd(int fd);
+static void print_status_info(int *axis, int n_axis,
+                              char *button, int n_buttons);
 
 /* Action Functions */
 void
@@ -162,12 +165,29 @@ flush_fd(int fd)
     }
 }
 
+static void
+print_status_info(int *axis, int n_axis, char *button, int n_buttons)
+{
+    int x;
+    /* print the results */
+    printf("X: %6d  Y: %6d  ", axis[0], axis[1]);
+    if (n_axis > 2)
+        printf("Z: %6d  ", axis[2]);
+    if (n_axis > 3)
+        printf("R: %6d  ", axis[3]);
+    for (x = 0; x < n_buttons; ++x)
+        printf("B%d: %d  ", x, button[x]);
+    printf("  \r");
+    fflush(stdout);
+}
+
 int
 main(int argc, char *argv[])
 {
     int i;
-    int debug = 0;
-    int joy_fd, x;
+    int debug = 0,
+        info_mode = 0;
+    int joy_fd;
     int num_of_axis = 0;
     int num_of_buttons = 0;
     int *axis = NULL;
@@ -176,7 +196,11 @@ main(int argc, char *argv[])
     struct js_event js;
 
     for (i = 1; i < argc; i++) {
-        if (!strcmp(argv[i], "-d")) {
+        if (!strcmp(argv[i], "-d") || !strcmp(argv[i], "--debug")) {
+            debug = 1;
+        }
+        else if (!strcmp(argv[i], "-i") || !strcmp(argv[i], "--info")) {
+            info_mode = 1;
             debug = 1;
         }
     }
@@ -205,7 +229,7 @@ main(int argc, char *argv[])
     button = (char *)calloc(num_of_buttons, sizeof(char));
 
     if (debug) {
-        printf("Joystick detected: %s\n\t%d axis\n\t%d buttons\n\n",
+        printf("%s\n\t%d axis\n\t%d buttons\n\n",
                 name_of_joystick, num_of_axis, num_of_buttons);
     }
 
@@ -217,7 +241,6 @@ main(int argc, char *argv[])
     while (1) {
         /* read the joystick state */
         read(joy_fd, &js, sizeof(struct js_event));
-
         /* see what to do with the event */
         switch (js.type & ~JS_EVENT_INIT)
         {
@@ -226,6 +249,7 @@ main(int argc, char *argv[])
                 break;
             case JS_EVENT_BUTTON:
                 button[js.number] = js.value;
+                if (info_mode) break;
                 for (i = 0; i < sizeof(buttons)/sizeof(Button); i++) {
                     if (buttons[i].key != js.number+1) continue;
                     if (buttons[i].func[js.value] && buttons[i].key)
@@ -233,18 +257,11 @@ main(int argc, char *argv[])
                 }
                 break;
         }
-        if (debug) {
-            /* print the results */
-            printf("X: %6d  Y: %6d  ", axis[0], axis[1]);
-            if (num_of_axis > 2)
-                printf("Z: %6d  ", axis[2]);
-            if (num_of_axis > 3)
-                printf("R: %6d  ", axis[3]);
-            for (x=0 ; x<num_of_buttons ; ++x)
-                printf("B%d: %d  ", x, button[x]);
-            printf("  \r");
-            fflush(stdout);
+
+        if (debug || info_mode) {
+            print_status_info(axis, num_of_axis, button, num_of_buttons);
         }
+
     }
 
     close(joy_fd);
