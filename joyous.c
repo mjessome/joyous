@@ -257,6 +257,7 @@ main(int argc, char *argv[])
     while (1) {
         /* read the joystick state */
         read(joy_fd, &js, sizeof(struct js_event));
+
         /* see what to do with the event */
         switch (js.type & ~JS_EVENT_INIT)
         {
@@ -277,7 +278,6 @@ main(int argc, char *argv[])
         if (debug || info_mode) {
             print_status_info(axis, num_of_axis, button, num_of_buttons);
         }
-
     }
 
     close(joy_fd);

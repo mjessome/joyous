@@ -24,6 +24,10 @@ install: all
 	@cp -f joyous ${PREFIX}/bin/
 	@chmod 755 ${PREFIX}/bin/joyous
 
+uninstall:
+	@echo Uninstalling joyous from ${PREFIX}/bin
+	@rm ${PREFIX}/bin/joyous
+
 clean:
 	@rm -f joyous ${OBJ}
 
