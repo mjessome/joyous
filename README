@@ -9,11 +9,13 @@ presses, and executing commands.
 
 Configuration
 -------------
-Currently joyous is only configurable through editing config.h. It comes
-bundled with a sample config.h. Be sure that JOY_DEV is defined as the device
-path of your joystick.
+All button configurations are made through modifications to config.h. Joyous
+comes bundled with a sample config.h. JOY_DEV in config.h specifies the default
+path to the joystick device, and can also be specified at runtime using the
+"--js <path>" command line option.
 
-See customization instructions and examples in config.h.
+See customization instructions and examples in config.h, and "--help" for
+usage information.
 
 Usage
 -----
@@ -31,7 +33,8 @@ Requirements
 ------------
     * Linux 2.2 or newer
     * X11
-    * XTest must be enabled if you want to send keystrokes
+    * XTest must be enabled in your X11 install if you want to send keystrokes,
+      or mouse button events.
     * A joystick
 
 Notes

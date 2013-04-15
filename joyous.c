@@ -201,7 +201,6 @@ static void
 print_status_info(int *axis, int n_axis, char *button, int n_buttons)
 {
     int x;
-    /* print the results */
     printf("X: %6d  Y: %6d  ", axis[0], axis[1]);
     if (n_axis > 2)
         printf("Z: %6d  ", axis[2]);
@@ -214,15 +213,18 @@ print_status_info(int *axis, int n_axis, char *button, int n_buttons)
 }
 
 static void
-usage()
+usage(char *name, int ecode)
 {
-    printf("Usage: joyous [options]\n");
+    printf("Usage: %s [options]\n", name);
     printf("Options:\n\n  Optional\n");
     printf("    -d,--debug\tPrint debug information to console.\n");
     printf("    -i,--info\tRun in info mode; Won't call any functions, but ");
     printf("    shows joystick information and information on keypresses.\n");
     printf("    --js <path>\tSpecify the path to the js device. Default: %s\n", JOY_DEV);
     printf("    -h, --help\tDisplay this help message\n");
+    if (ecode >= 0) {
+        exit(ecode);
+    }
 }
 
 int
@@ -251,22 +253,19 @@ main(int argc, char *argv[])
             debug = 1;
         }
         else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
-            usage();
-            exit(0);
+            usage(argv[0], 0);
         }
         else if (!strcmp(argv[i],"--js")) {
             i++;
             if (i == argc) {
                 fprintf(stderr, "Error: --js argument without path specified.\n");
-                usage();
-                exit(1);
+                usage(argv[0], 1);
             }
             strncpy(js_path, argv[i], 80);
         }
         else {
             fprintf(stderr, "Error: Invalid argument: %s\n", argv[i]);
-            usage();
-            exit(1);
+            usage(argv[0], 1);
         }
     }
 
