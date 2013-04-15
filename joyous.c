@@ -221,6 +221,7 @@ usage()
     printf("    -d,--debug\tPrint debug information to console.\n");
     printf("    -i,--info\tRun in info mode; Won't call any functions, but ");
     printf("    shows joystick information and information on keypresses.\n");
+    printf("    --js <path>\tSpecify the path to the js device. Default: %s\n", JOY_DEV);
     printf("    -h, --help\tDisplay this help message\n");
 }
 
@@ -236,7 +237,10 @@ main(int argc, char *argv[])
     int *axis = NULL;
     char *button=NULL;
     char name_of_joystick[80];
+    char js_path[80];
     struct js_event js;
+
+    strncpy(js_path, JOY_DEV, 80);
 
     for (i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-d") || !strcmp(argv[i], "--debug")) {
@@ -250,6 +254,20 @@ main(int argc, char *argv[])
             usage();
             exit(0);
         }
+        else if (!strcmp(argv[i],"--js")) {
+            i++;
+            if (i == argc) {
+                fprintf(stderr, "Error: --js argument without path specified.\n");
+                usage();
+                exit(1);
+            }
+            strncpy(js_path, argv[i], 80);
+        }
+        else {
+            fprintf(stderr, "Error: Invalid argument: %s\n", argv[i]);
+            usage();
+            exit(1);
+        }
     }
 
     DISPLAY = XOpenDisplay(NULL);
@@ -262,9 +280,9 @@ main(int argc, char *argv[])
         exit(1);
     }
 
-    joy_fd = open(JOY_DEV, O_RDONLY);
+    joy_fd = open(js_path, O_RDONLY);
     if (joy_fd == -1) {
-        printf("Couldn't open joystick\n");
+        printf("Couldn't open joystick %s\n", js_path);
         exit(1);
     }
 
@@ -306,7 +324,7 @@ main(int argc, char *argv[])
                 break;
         }
 
-        if (debug || info_mode) {
+        if (debug) {
             print_status_info(axis, num_of_axis, button, num_of_buttons);
         }
     }
