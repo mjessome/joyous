@@ -38,6 +38,8 @@ void exec_cmd(const Arg *arg);
 void send_key_release(const Arg *arg);
 void send_key_press(const Arg *arg);
 void send_string(const Arg *arg);
+void move_pointer_x(const Arg *arg);
+void move_pointer_y(const Arg *arg);
 
 #include "config.h"
 
@@ -117,6 +119,21 @@ send_string(const Arg *arg)
     }
     free(str);
 }
+
+void
+move_pointer_x(const Arg *arg)
+{
+    XWarpPointer(DISPLAY, None, None, 0, 0, 0, 0, arg->i, 0);
+    XSync(DISPLAY, 0);
+}
+
+void
+move_pointer_y(const Arg *arg)
+{
+    XWarpPointer(DISPLAY, None, None, 0, 0, 0, 0, 0, arg->i);
+    XSync(DISPLAY, 0);
+}
+
 
 static Key
 char_to_key(const char *c)
@@ -281,5 +298,6 @@ main(int argc, char *argv[])
     }
 
     close(joy_fd);
+    XCloseDisplay(DISPLAY);
     return 0;
 }
