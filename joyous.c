@@ -10,9 +10,6 @@
 #include <X11/keysym.h>
 #include <X11/extensions/XTest.h>
 
-#define BTN_PRESS   0
-#define BTN_RELEASE 1
-
 Display *DISPLAY;
 
 typedef struct {
