@@ -37,6 +37,8 @@ void quit(const Arg *arg);
 void exec_cmd(const Arg *arg);
 void send_key_release(const Arg *arg);
 void send_key_press(const Arg *arg);
+void send_mouse_release(const Arg *arg);
+void send_mouse_press(const Arg *arg);
 void send_string(const Arg *arg);
 void move_pointer_x(const Arg *arg);
 void move_pointer_y(const Arg *arg);
@@ -101,6 +103,18 @@ send_key_press(const Arg *arg)
     if (keycode) XTestFakeKeyEvent(DISPLAY, keycode, True, CurrentTime);
     XSync(DISPLAY, False);
     XTestGrabControl(DISPLAY, False);
+}
+void
+send_mouse_release(const Arg *arg)
+{
+    XTestFakeButtonEvent(DISPLAY, arg->i, False, CurrentTime);
+    XSync(DISPLAY, False);
+}
+void
+send_mouse_press(const Arg *arg)
+{
+    XTestFakeButtonEvent(DISPLAY, arg->i, True, CurrentTime);
+    XSync(DISPLAY, False);
 }
 void
 send_string(const Arg *arg)
