@@ -11,16 +11,16 @@ Configuration
 -------------
 All button configurations are made through modifications to config.h. Joyous
 comes bundled with a sample config.h. JOY_DEV in config.h specifies the default
-path to the joystick device, and can also be specified at runtime using the
-"--js <path>" command line option.
+path to the joystick device.
 
-See customization instructions and examples in config.h, and "--help" for
-usage information.
+See customization instructions and examples in config.h.
 
 Usage
 -----
 To use joyous, simply launch the joyous binary. Any key presses will be sent to
 the active X window.
+
+See --help for usage information.
 
 Installation
 ------------
